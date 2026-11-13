@@ -1,0 +1,13 @@
+[package]
+name = "os-gui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+os-core = { path = "../os-core" }
+os-modules = { path = "../os-modules" }
+rusqlite = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tiny_http = { version = "0.12", default-features = false }

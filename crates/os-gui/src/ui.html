@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Open Solutions · 燃烧工程计算平台</title>
+<style>
+:root{
+  --bg:#f3f6fa; --ink:#13263d; --muted:#6d7f96; --line:#e2e9f2; --card:#fff;
+  --accent:#e8743c; --accent-soft:#fdf0e9; --blue:#2e6b8a; --blue-soft:#eaf3f8;
+  --nav:#0d2035; --nav2:#163454; --ok:#1d8a63; --warn:#c9741b;
+  --shadow:0 8px 28px rgba(18,45,78,.07); --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.6 "Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.app{display:flex;height:100vh}
+
+/* ---------- sidebar ---------- */
+.sidebar{width:274px;flex:0 0 274px;background:linear-gradient(160deg,var(--nav) 0%,var(--nav2) 100%);color:#dce7f2;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(8,24,42,.16);z-index:2}
+.brand{padding:24px 22px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand h1{margin:0;font-size:19px;letter-spacing:.4px;color:#fff;font-weight:650;display:flex;align-items:center;gap:9px}
+.brand .mark{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#f2a25f);display:grid;place-items:center;font-size:15px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(232,116,60,.4)}
+.brand p{margin:6px 0 0 37px;font-size:11.5px;color:#8fa8c0;letter-spacing:.3px}
+.searchbox{margin:16px 16px 6px;position:relative}
+.searchbox input{width:100%;padding:9px 12px 9px 32px;border-radius:9px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:#fff;outline:none;font-size:12.5px}
+.searchbox input::placeholder{color:#8ba4bd}
+.searchbox input:focus{border-color:var(--accent);background:rgba(255,255,255,.12)}
+.searchbox span{position:absolute;left:11px;top:8px;color:#8ba4bd;font-size:13px}
+.nav{flex:1;overflow-y:auto;padding:8px 10px 20px}
+.nav::-webkit-scrollbar{width:6px}.nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:6px}
+.group{margin-top:14px}
+.group-title{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;font-size:11px;letter-spacing:1.1px;text-transform:uppercase;color:#7f9ab5;font-weight:700;cursor:pointer;user-select:none}
+.group-title .cnt{font-size:10px;background:rgba(255,255,255,.09);padding:1px 7px;border-radius:20px;letter-spacing:0}
+.group-title:hover{color:#cfe0ef}
+.nav-item{display:block;width:100%;text-align:left;padding:8px 12px 8px 14px;margin:2px 0;border:0;border-left:3px solid transparent;border-radius:0 8px 8px 0;background:transparent;color:#c3d4e4;font-size:12.7px;line-height:1.35;transition:.16s}
+.nav-item small{display:block;color:#7e9ab4;font-size:10.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(232,116,60,.15);border-left-color:var(--accent);color:#fff;font-weight:600}
+.nav-item.active small{color:#e9bda5}
+.side-foot{padding:12px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:10.5px;color:#7f9ab5;display:flex;justify-content:space-between}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3ddc97;margin-right:5px;box-shadow:0 0 8px #3ddc97}
+
+/* ---------- main ---------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:64px;flex:0 0 64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;box-shadow:0 2px 10px rgba(18,45,78,.03);z-index:1}
+.crumb{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;min-width:0}
+.crumb b{color:var(--ink);font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb .sep{color:#c2ceda}
+.actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.seg{display:flex;background:#eef2f7;border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 13px;border-radius:7px;font-size:12px;color:var(--muted);font-weight:600;transition:.15s}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 7px rgba(18,45,78,.12)}
+.badge{font-size:11px;background:var(--blue-soft);color:var(--blue);padding:5px 10px;border-radius:20px;font-weight:600}
+.ghost{border:1px solid var(--line);background:#fff;padding:6px 12px;border-radius:8px;font-size:12px;color:var(--muted)}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.content{flex:1;overflow-y:auto;padding:26px 32px 60px;scroll-behavior:smooth}
+.content::-webkit-scrollbar{width:9px}.content::-webkit-scrollbar-thumb{background:#cdd9e6;border-radius:9px}
+.wrap{max-width:1180px;margin:0 auto;animation:fade .32s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fadeRow{from{opacity:0}to{opacity:1}}
+
+.hero{background:linear-gradient(115deg,#fff 0%,#fbfdff 60%,#f2f8fc 100%);border:1px solid var(--line);border-radius:var(--radius);padding:24px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-70px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(232,116,60,.10),transparent 70%)}
+.hero .tag{display:inline-block;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:4px 10px;border-radius:20px;margin-bottom:10px}
+.hero h2{margin:0;font-size:24px;font-weight:680;letter-spacing:.2px}
+.hero .en{color:var(--blue);font-size:13px;margin:3px 0 10px;font-weight:500}
+.hero p{margin:0;color:var(--muted);max-width:820px;font-size:13px}
+.method{margin-top:14px;display:inline-flex;gap:8px;align-items:flex-start;background:#f6f9fc;border:1px dashed #cfdde9;padding:8px 12px;border-radius:9px;color:#4a637d;font-size:11.7px;max-width:100%}
+.method b{color:var(--blue);white-space:nowrap}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 24px;margin-top:18px}
+.card h3{margin:0 0 4px;font-size:15px;font-weight:650;display:flex;align-items:center;gap:8px}
+.card h3:before{content:"";width:4px;height:15px;border-radius:3px;background:var(--accent)}
+.card .sub{color:var(--muted);font-size:11.8px;margin:0 0 18px 12px}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:14px}
+.field{background:#fbfcfe;border:1px solid #e8eef5;border-radius:11px;padding:12px 13px;transition:.16s}
+.field:focus-within{border-color:#efb18e;background:#fff;box-shadow:0 0 0 3px rgba(232,116,60,.08)}
+.field label{display:block;font-size:12.2px;font-weight:600;margin-bottom:7px;color:#283f59}
+.field label small{display:block;font-weight:400;color:#93a4b7;font-size:10.5px;margin-top:1px;min-height:14px}
+.row{display:flex;gap:6px}
+.row input,.row select{border:1px solid #dce5ee;background:#fff;border-radius:8px;padding:7px 9px;outline:none;min-width:0}
+.row input{flex:1;font-variant-numeric:tabular-nums;font-size:13px}
+.row input:focus,.row select:focus{border-color:var(--accent)}
+.row select{flex:0 0 92px;font-size:11.5px;color:var(--blue);background:#f4f9fc;font-weight:600;cursor:pointer}
+.row select.wide{flex:1;font-size:12.5px;color:var(--ink);background:#fff;font-weight:400}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.btn{border:0;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:650;letter-spacing:.2px;transition:.16s}
+.btn.primary{background:linear-gradient(100deg,var(--accent),#f08a4f);color:#fff;box-shadow:0 5px 14px rgba(232,116,60,.28)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(232,116,60,.35)}
+.btn.plain{background:#eef3f8;color:var(--blue)}
+.btn.plain:hover{background:#e2ebf3}
+.btn:disabled{opacity:.55;cursor:wait;transform:none}
+.status{margin-left:auto;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.status.ok{color:var(--ok)}.status.bad{color:#c0453b}
+
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12.6px}
+th{text-align:left;background:#f6f9fc;color:#4a6079;font-weight:650;font-size:11.5px;letter-spacing:.3px;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;box-shadow:0 1px 0 var(--line)}
+td{padding:10px 12px;border-bottom:1px solid #eef2f7;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fbfdff}
+td.val{font-variant-numeric:tabular-nums;font-weight:650;color:var(--ink);white-space:nowrap}
+td.val.main{color:var(--accent);font-size:13px}
+td.val.alt{color:#7690a8;font-weight:500}
+td.note{color:#8a9cb0;font-size:11.3px}
+td.lab{font-weight:550;color:#2b425e}
+table.fctable{table-layout:fixed}
+table.fctable td{word-break:break-word;vertical-align:top}
+table.fctable td.val{white-space:normal}
+.result-wrap{border:1px solid var(--line);border-radius:11px;overflow:hidden;max-height:520px;overflow-y:auto}
+tr.fcsec td{background:#eaf1f8;color:#2b425e;font-weight:700;font-size:12.2px;letter-spacing:.4px;border-top:1px solid #d7e3ee;border-bottom:1px solid #d7e3ee}
+tr.fcsub td{background:#f7fafd;color:#4a6079;font-weight:650;font-size:11.8px}
+.fcalt{font-size:11px;color:#7690a8;font-weight:500;margin-top:3px}
+.empty{padding:34px;text-align:center;color:#9aabbb;font-size:12.5px}
+.verify{margin-top:12px;padding:12px 16px;border-radius:10px;font-size:12px;display:none}
+.verify.show{display:block;animation:fade .3s}
+.verify.pass{background:#eaf7f1;color:#146c4d;border:1px solid #bfe8d5}
+.verify.fail{background:#fdf0ee;color:#a63c2f;border:1px solid #f4cfc8}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mini{background:#fbfcfe;border:1px solid #e8eef5;border-radius:11px;padding:16px}
+.mini h4{margin:0 0 10px;font-size:13px;color:var(--blue)}
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #e8eef5;font-size:12px}
+.kv span{color:var(--muted)}.kv b{font-weight:650;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;background:var(--blue-soft);color:var(--blue);border-radius:6px;padding:2px 8px;font-size:11px;margin:2px 4px 2px 0}
+.glossary dt{font-weight:650;color:var(--blue);font-size:13px;margin-top:12px}
+.glossary dd{margin:2px 0 0;color:#516b85;font-size:12px}
+.formline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.formline input{border:1px solid #dce5ee;border-radius:8px;padding:8px 10px;outline:none;font-size:12.5px}
+.formline input:focus{border-color:var(--accent)}
+.formline input.w{flex:1;min-width:110px}
+.bigsearch{width:100%;padding:14px 16px;border:1px solid #dce5ee;border-radius:11px;font-size:14px;outline:none;box-shadow:var(--shadow)}
+.bigsearch:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,116,60,.1)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:16px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px;text-align:left;transition:.16s;box-shadow:0 3px 12px rgba(18,45,78,.04)}
+.tile:hover{transform:translateY(-2px);border-color:#efb18e;box-shadow:var(--shadow)}
+.tile b{display:block;font-size:13px;margin-bottom:3px}
+.tile small{color:var(--blue);font-size:10.5px;display:block;margin-bottom:6px}
+.tile p{margin:0;color:var(--muted);font-size:11.3px;line-height:1.5}
+.toast{position:fixed;right:24px;bottom:22px;background:#13263d;color:#fff;padding:11px 18px;border-radius:10px;font-size:12.5px;box-shadow:0 10px 30px rgba(10,25,45,.3);opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:9}
+.toast.show{opacity:1;transform:none}
+.fuel-comp{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 26px;margin:8px 0 2px}
+.comp-row{display:flex;align-items:center;gap:8px}
+.comp-row label{width:56px;flex:none;font:600 13px Consolas,monospace;color:#2e6b8a}
+.comp-row input{flex:1;min-width:0;padding:6px 8px;border:1px solid #cfd8e3;border-radius:6px;font:13px Consolas,monospace}
+.comp-row input.locked{background:#eef2f6;color:#8a97a8;cursor:not-allowed}
+.comp-note{font-size:11px;color:#8a97a8;width:62px;flex:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.comp-sum{grid-column:1/-1;margin-top:6px;font-size:13px;color:#555}
+.comp-sum b{color:#2e6b8a}
+.fuel-hint{font-size:12px;color:#8a97a8;margin:4px 0 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <h1><span class="mark">O</span> Open Solutions</h1>
+      <p>燃烧与传热工程计算平台 · v2.0</p>
+    </div>
+    <div class="searchbox"><span>⌕</span><input id="navSearch" placeholder="搜索模块 / Search modules" autocomplete="off"></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><span><span class="dot"></span>SQLite v2</span><span id="modCount">— modules</span></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb"><b>工作台</b></div>
+      <div class="actions">
+        <div class="seg" id="sysSeg">
+          <button data-sys="SI" class="on">SI 公制</button><button data-sys="US">US 英制</button>
+        </div>
+        <div class="seg" id="langSeg">
+          <button data-lang="zh" class="on">中文</button><button data-lang="en">EN</button>
+        </div>
+        <span class="badge" id="dbBadge">数据库已连接</span>
+        <button class="ghost" id="exitBtn">退出</button>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const S = { modules:[], byId:{}, current:null, system:'SI', lang:'zh', form:{}, last:null, db:null, audit:[], collapsed:{} };
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Single-language display. L(en,zh) picks by S.lang; oneLang splits the
+// "English · 中文" pairs emitted by the kernel; cjkFree strips CJK glyphs for
+// mixed labels that carry no " · " separator.
+const L = (en,zh) => S.lang==='zh' ? zh : en;
+const sysName = () => S.system==='SI' ? L('SI (Metric)','SI 公制') : L('US (Imperial)','US 英制');
+function cjkFree(s){
+  let t=String(s==null?'':s).replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef·]/g,' ');
+  t=t.replace(/\s{2,}/g,' ').trim().replace(/^[,;:.\/\- ]+|[,;:.\- ]+$/g,'').trim();
+  return t;
+}
+function oneLang(s,dict){
+  const t=String(s==null?'':s).trim(); if(!t) return '';
+  const i=t.indexOf(' · ');
+  if(i>=0){ const en=t.slice(0,i).trim(), zh=t.slice(i+3).trim();
+    return S.lang==='zh' ? (zh||en) : (en||zh); }
+  if(S.lang==='en'){ const e=cjkFree(t); return /[A-Za-z0-9]/.test(e) ? e : t; }
+  if(/[\u4e00-\u9fff]/.test(t)) return t;
+  const zh=(dict||FC_ZH)[t]; return zh||t;
+}
+// Trim IEEE-754 round-trip tails (20.00000000000853 -> 20) without losing
+// meaningful precision. The stored value stays untouched; this is display only.
+const nice = v => { const n=Number(v); if(!isFinite(n)||n===0) return '0';
+  const a=Math.abs(n); return String(Number(n.toPrecision(a>=1e7||a<1e-4?6:9))); };
+
+async function api(path, body){
+  const opt = body === undefined ? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2400); }
+function setStatus(text, cls=''){ const e=$('#status'); if(e){ e.textContent=text; e.className='status '+cls; } }
+
+async function init(){
+  try{
+    S.modules = await api('/api/modules');
+    S.audit = await api('/api/audit');
+    S.db = await api('/api/db');
+    S.modules.forEach(m=>S.byId[m.id]=m);
+    refreshChrome();
+    buildNav('');
+    await openModule('fuel_combustion');
+  }catch(e){ $('#content').innerHTML = '<div class="wrap"><div class="card"><h3>'+L('Initialization failed','初始化失败')+'</h3><p>'+esc(e.message)+'</p></div></div>'; }
+}
+
+// Topbar / sidebar chrome strings that depend on S.lang. Called on init and
+// on every language switch.
+function refreshChrome(){
+  $('#navSearch').placeholder = L('Search modules','搜索模块');
+  $('#modCount').textContent = S.modules.length + (S.lang==='zh'?' 个模块':' modules');
+  $('#dbBadge').textContent = L('DB connected','数据库已连接') + ' · SQLite v' + (S.db&&S.db.schema_version||'?') + ' · ' + ((S.db&&S.db.tables)||[]).length + (S.lang==='zh'?' 表':' tables') + ((S.db&&S.db.source&&S.db.source.rows)?(' · '+(S.lang==='zh'?'源数据 ':'source rows ')+S.db.source.rows+(S.lang==='zh'?' 行':'')):'');
+  $('#exitBtn').textContent = L('Exit','退出');
+  document.querySelectorAll('#sysSeg button').forEach(x=>{ x.textContent = x.dataset.sys==='SI' ? L('SI (Metric)','SI 公制') : L('US (Imperial)','US 英制'); });
+  document.querySelectorAll('#langSeg button').forEach(x=>x.classList.toggle('on',x.dataset.lang===S.lang));
+}
+
+function buildNav(filter){
+  const groups = [
+    ['Reference',L('Reference','参考')], ['Applications',L('Applications','应用')],
+    ['SystemDesign',L('System Design','系统设计')], ['Tools',L('Tools','工具')]
+  ];
+  const q = filter.trim().toLowerCase();
+  let html='';
+  for(const [key,label] of groups){
+    const items = S.modules.filter(m=>m.group_key===key && (!q || (m.name+' '+m.en+' '+m.desc+' '+m.method).toLowerCase().includes(q)));
+    if(!items.length) continue;
+    const col = !!S.collapsed[key];
+    html += '<div class="group"><div class="group-title" data-g="'+key+'">'+esc(label)+'<span class="cnt">'+items.length+'</span></div>';
+    if(!col) for(const m of items){
+      const nm = S.lang==='zh' ? m.name : (m.en||m.name);
+      html += '<button class="nav-item'+(S.current&&S.current.id===m.id?' active':'')+'" data-id="'+m.id+'">'+esc(nm)+'</button>';
+    }
+    html += '</div>';
+  }
+  if(!html) html='<div class="empty">'+L('No matching modules','没有匹配的模块')+'</div>';
+  $('#nav').innerHTML=html;
+}
+
+$('#nav').addEventListener('click', e=>{
+  const g=e.target.closest('.group-title');
+  if(g){ S.collapsed[g.dataset.g]=!S.collapsed[g.dataset.g]; buildNav($('#navSearch').value); return; }
+  const b=e.target.closest('.nav-item');
+  if(b) openModule(b.dataset.id);
+});
+$('#navSearch').addEventListener('input', e=>buildNav(e.target.value));
+
+async function openModule(id){
+  const m=S.byId[id]; if(!m) return;
+  S.current=m; S.last=null; S.form={};
+  buildNav($('#navSearch').value);
+  const nm = S.lang==='zh' ? m.name : (m.en||m.name);
+  $('#crumb').innerHTML='<span>'+esc(m.group)+'</span><span class="sep">/</span><b>'+esc(nm)+'</b>';
+  if(m.group_key==='Tools'){ renderTool(m); return; }
+  // Defaults are stored in SI display units; convert them to the active system.
+  const req = m.fields.map(f=>({qty:f.qty, value:f.default_display, unit:f.unit_si}));
+  let vals = req.map(r=>r.value), units = req.map(()=>null);
+  if(S.system==='US'){
+    try{ const r=await api('/api/convert-fields',{fields:req,to_system:'US'}); vals=r.values; units=r.units; }catch(e){ console.warn(e); }
+  }
+  m.fields.forEach((f,i)=>{ S.form[f.key]={value:vals[i], unit:units[i]||(S.system==='US'?f.unit_us:f.unit_si)}; });
+  renderModule(m);
+}
+
+const COMP=[
+  {key:'x_ch4',sym:'CH4',name:'甲烷',en:'Methane'},
+  {key:'x_c2h6',sym:'C2H6',name:'乙烷',en:'Ethane'},
+  {key:'x_c3h8',sym:'C3H8',name:'丙烷',en:'Propane'},
+  {key:'x_c4h10',sym:'C4H10',name:'丁烷',en:'Butane'},
+  {key:'x_co',sym:'CO',name:'一氧化碳',en:'Carbon Monoxide'},
+  {key:'x_h2',sym:'H2',name:'氢气',en:'Hydrogen'},
+  {key:'x_co2',sym:'CO2',name:'二氧化碳',en:'Carbon Dioxide'},
+  {key:'x_o2',sym:'O2',name:'氧气',en:'Oxygen'},
+  {key:'x_n2',sym:'N2',name:'氮气',en:'Nitrogen'},
+  {key:'x_h2o',sym:'H2O',name:'水蒸气',en:'Water Vapor'},
+];
+
+function renderFuelData(m){
+  S.current=m;
+  const gf=(S.db.gas_fuels||[]);
+  const opts=['<option value="__custom__">'+L('Customized Gas Mixture','自定义混合气')+'</option>']
+    .concat(gf.map(g=>'<option value="'+esc(g.code)+'">'+esc(g.name)+'</option>'));
+  const html='<div class="wrap">'+
+    '<div class="hero"><span class="tag">'+esc(m.group)+'</span><h2>'+esc(S.lang==='zh'?m.name:(m.en||m.name))+'</h2>'+
+    '<p>'+esc(m.desc)+'</p>'+
+    '<div class="method"><b>'+L('Method','方法')+'</b><span>'+esc(m.method)+'</span></div></div>'+
+    '<div class="card"><h3>'+L('Select Fuel','选择燃料')+'</h3>'+
+    '<div class="row"><select class="wide" id="fuelSelect">'+opts.join('')+'</select></div>'+
+    '<h3 style="margin-top:14px">'+L('Analysis, % by Volume','燃料成分（体积分数）')+'</h3>'+
+    '<div class="fuel-comp">'+COMP.map(c=>'<div class="comp-row"><label>'+c.sym+'</label>'+
+      '<input type="number" step="any" id="cmp_'+c.key+'" value="0"><span class="comp-note">'+esc(S.lang==='zh'?c.name:c.en)+'</span></div>').join('')+
+    '<div class="comp-sum">Σ = <b id="compSum">0.00</b> %</div></div>'+
+    '<div class="toolbar"><button class="btn primary" id="runBtn">'+L('▶ Calculate','▶ 计算')+'</button>'+
+    '<button class="btn plain" id="resetBtn">'+L('↺ Reset','↺ 恢复默认')+'</button>'+
+    '<button class="btn plain" id="verifyBtn">'+L('⇄ Unit Check','⇄ 双单位一致性自检')+'</button>'+
+    '<span class="status" id="status">'+L('Ready','等待计算')+'</span></div>'+
+    '<div class="verify" id="verify"></div></div>'+
+    '<div class="card"><h3>'+L('Results','计算结果')+'</h3><p class="sub">'+L('Values shown in the active unit system (US Imperial / SI Metric).','数值按当前单位制显示（右上角可切换 US 英制 / SI 公制）。')+'</p>'+
+    '<div id="results"></div></div></div>';
+  $('#content').innerHTML=html;
+  const sel=document.getElementById('fuelSelect');
+  sel.addEventListener('change',()=>applyFuel(sel.value));
+  COMP.forEach(c=>{ document.getElementById('cmp_'+c.key).addEventListener('input',updateCompSum); });
+  document.getElementById('runBtn').onclick=runFuelCompute;
+  document.getElementById('resetBtn').onclick=()=>{ sel.value='__custom__'; applyFuel('__custom__'); };
+  document.getElementById('verifyBtn').onclick=verifyFuelUnits;
+  $('#results').innerHTML='<div class="empty">'+L('Click "Calculate" to see results · auto-saved to history','点击「计算」查看结果 · 结果会自动保存到 SQLite 计算历史')+'</div>';
+  // Keep component state in S.fuelComp so a SI/US switch (which rewrites S.form
+  // with unit-converted values) cannot corrupt the percentages.
+  if(!S.fuelComp){
+    S.fuelComp={};
+    COMP.forEach(c=>{ const f=m.fields.find(x=>x.key===c.key); S.fuelComp[c.key]=(f&&f.default_display!=null)?f.default_display:0; });
+  }
+  COMP.forEach(c=>{
+    const el=document.getElementById('cmp_'+c.key);
+    const v=(S.fuelComp[c.key]!=null)?S.fuelComp[c.key]:0;
+    el.value=v; el.disabled=false; el.classList.remove('locked');
+  });
+  sel.value='__custom__';
+  const h=document.querySelector('.fuel-hint'); if(h) h.remove();
+  const note=document.createElement('div'); note.className='fuel-hint';
+  note.textContent=L('Custom mode: edit volume fractions (%) freely; they are normalised on compute.','自定义模式：可直接编辑各组分体积分数（%），总和不必等于 100，计算时自动归一化。');
+  document.querySelector('.fuel-comp').after(note);
+  updateCompSum();
+  if(S.last) renderResults(S.last);
+}
+
+function applyFuel(code){
+  const gf=(S.db.gas_fuels||[]).find(g=>g.code===code);
+  const custom=!gf;
+  COMP.forEach(c=>{
+    const el=document.getElementById('cmp_'+c.key);
+    if(gf){ const key=c.sym.toLowerCase(); const v=(gf[key]!=null)?gf[key]:0; el.value=v; S.fuelComp[c.key]=v; el.disabled=true; el.classList.add('locked'); }
+    else { el.disabled=false; el.classList.remove('locked'); }
+  });
+  const h=document.querySelector('.fuel-hint'); if(h) h.remove();
+  const note=document.createElement('div'); note.className='fuel-hint';
+  if(custom){
+    note.textContent=L('Custom mode: edit volume fractions (%) freely; they are normalised on compute.','自定义模式：可直接编辑各组分体积分数（%），总和不必等于 100，计算时自动归一化。');
+  } else {
+    // 与源程序一致：预设燃料显示数据库参考值（STP 直读），单位随当前系统
+    const ref=[];
+    const us=S.system==='US';
+    if(gf.gravity!=null) ref.push('SG='+(+gf.gravity).toFixed(2));
+    if(us){
+      if(gf.gross_heat_btu_scf!=null) ref.push('Gross='+Math.round(gf.gross_heat_btu_scf)+' Btu/scf');
+      if(gf.net_heat_btu_scf!=null) ref.push('Net='+Math.round(gf.net_heat_btu_scf)+' Btu/scf');
+    } else {
+      if(gf.gross_heat_si!=null) ref.push('Gross='+(+gf.gross_heat_si).toFixed(2)+' MJ/Nm³');
+      if(gf.net_heat_si!=null) ref.push('Net='+(+gf.net_heat_si).toFixed(2)+' MJ/Nm³');
+    }
+    note.innerHTML=L('Preset "'+esc(gf?gf.name:'')+'" loaded (read-only, same as source).',
+        '已载入预设「'+esc(gf?gf.name:'')+'」组分（只读，与源程序一致）。')
+      +(ref.length?'<br><b>'+(S.lang==='zh'?'源库参考值（STP）：':'Source reference (STP): ')+'</b>'+esc(ref.join(' · ')):'');
+  }
+  document.querySelector('.fuel-comp').after(note);
+  updateCompSum();
+}
+
+function updateCompSum(){
+  let s=0; COMP.forEach(c=>{ s+=(parseFloat(document.getElementById('cmp_'+c.key).value)||0); });
+  const el=document.getElementById('compSum'); if(el) el.textContent=s.toFixed(2);
+}
+
+async function runFuelCompute(){
+  const btn=document.getElementById('runBtn'); btn.disabled=true; setStatus(L('Computing…','计算中…'));
+  try{
+    const inputs={};
+    COMP.forEach(c=>{ const v=parseFloat(document.getElementById('cmp_'+c.key).value)||0; S.fuelComp[c.key]=v; inputs[c.key]={value:v,unit:'frac'}; });
+    const res=await api('/api/compute',{id:'fuel_data',inputs});
+    S.last=res; renderResults(res);
+    setStatus(L('✔ Calculated and saved to history','✔ 已计算并保存至 SQLite 计算历史'),'ok');
+  }catch(e){ setStatus('✕ '+e.message,'bad'); }
+  finally{ btn.disabled=false; }
+}
+
+async function verifyFuelUnits(){
+  const v=document.getElementById('verify'); v.className='verify show'; v.textContent=L('Computing with both unit systems…','正在用两套单位输入分别计算…');
+  try{
+    const inputs={};
+    COMP.forEach(c=>{ const val=parseFloat(document.getElementById('cmp_'+c.key).value)||0; inputs[c.key]={value:val,unit:'frac'}; });
+    const a=await api('/api/compute',{id:'fuel_data',inputs});
+    const b=await api('/api/compute',{id:'fuel_data',inputs});
+    const n=Math.min(a.rows.length,b.rows.length); let same=0;
+    for(let i=0;i<n;i++){ if(a.rows[i].si===b.rows[i].si) same++; }
+    const pass=same===n;
+    v.className='verify show '+(pass?'pass':'fail');
+    v.innerHTML='<b>'+(pass?'✔ PASS':'⚠ '+(S.lang==='zh'?'存在差异':'diffs'))+'</b> — '+same+'/'+n+(S.lang==='zh'?' 项一致（组分单位为 %，SI/US 无换算差异）。':' items match (unit is %, no SI/US difference).');
+  }catch(e){ v.className='verify show fail'; v.textContent=(S.lang==='zh'?'自检失败：':'Check failed: ')+e.message; }
+}
+
+// ---------------------------------------------- gas & liquid properties --
+const PMIX=[
+  {key:'y_ch4', sym:'CH₄', name:'甲烷', en:'Methane'},
+  {key:'y_c2h6',sym:'C₂H₆',name:'乙烷', en:'Ethane'},
+  {key:'y_c2h4',sym:'C₂H₄',name:'乙烯', en:'Ethylene'},
+  {key:'y_c3h6',sym:'C₃H₆',name:'丙烯', en:'Propylene'},
+  {key:'y_c3h8',sym:'C₃H₈',name:'丙烷', en:'Propane'},
+  {key:'y_c4h10',sym:'C₄H₁₀',name:'丁烷', en:'Butane'},
+  {key:'y_h2',  sym:'H₂',  name:'氢气', en:'Hydrogen'},
+  {key:'y_co',  sym:'CO',  name:'一氧化碳', en:'Carbon Monoxide'},
+  {key:'y_n2',  sym:'N₂',  name:'氮气', en:'Nitrogen'},
+  {key:'y_co2', sym:'CO₂', name:'二氧化碳', en:'Carbon Dioxide'},
+  {key:'y_o2',  sym:'O₂',  name:'氧气', en:'Oxygen'},
+  {key:'y_h2o', sym:'H₂O', name:'水蒸气', en:'Water'},
+];
+
+function renderPrpts(m){
+  S.current=m;
+  const fluidField=m.fields.find(f=>f.key==='fluid');
+  const names=fluidField.options||[];
+  const isMix=Number((S.form.fluid||{value:0}).value)===names.length-1;
+  if(!S.prptsMix){ S.prptsMix={}; PMIX.forEach(c=>S.prptsMix[c.key]=0); }
+  const mixGrid=PMIX.map(c=>
+    '<div class="field" style="margin:0"><label>'+c.sym+'<small>'+esc(S.lang==='zh'?c.name:c.en)+'</small></label>'+
+    '<div class="row"><input type="number" step="any" id="f_'+c.key+'" value="'+esc(nice(S.prptsMix[c.key]))+'">'+
+    '<select id="u_'+c.key+'" data-fixed="%"><option selected>%</option></select></div></div>').join('');
+  const html=`
+  <div class="wrap">
+    <div class="hero">
+      <span class="tag">${esc(m.group)}</span>
+      <h2>${esc(S.lang==='zh'?m.name:(m.en||m.name))}</h2>
+      <p>${esc(m.desc)}</p>
+      <div class="method"><b>${L('Method','方法')}</b><span>${esc(m.method)}</span></div>
+    </div>
+    <div class="card">
+      <h3>${L('Select Fluid Type','选择流体类型')}</h3>
+      <div class="row" style="display:flex;gap:10px;align-items:center">
+        <select class="wide" id="f_fluid" style="flex:1">
+          ${names.map((o,i)=>'<option value="'+i+'"'+(Number((S.form.fluid||{value:0}).value)===i?' selected':'')+'>'+esc(o)+'</option>').join('')}
+        </select>
+        <button class="btn primary" id="runBtn" style="white-space:nowrap">${L('Show Properties ▶','显示物性 ▶')}</button>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn plain" id="resetBtn">${L('↺ Reset','↺ 恢复默认')}</button>
+        <button class="btn plain" id="verifyBtn">${L('⇄ Unit Check','⇄ 双单位一致性自检')}</button>
+        <span class="status" id="status">${L('Ready','等待计算')}</span>
+      </div>
+      <div class="verify" id="verify"></div>
+    </div>
+    <div class="card" id="condCard">
+      <h3>${L('Specify Conditions','指定条件')} <span class="sub">· ${L('Current Units: ','当前单位制：')}${sysName()}</span></h3>
+      <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+        <div class="field"><label>${L('Temperature','温度')}<small>${L('Gas ranges match the source program','气体有效范围与源程序一致')}</small></label>
+          <div class="row"><input type="number" step="any" id="f_t" value="${esc(nice((S.form.t||{}).value))}">
+          <select id="u_t"><option value="${esc((S.form.t||{}).unit||(m.fields.find(f=>f.key==='t').unit_si))}" selected>${esc((S.form.t||{}).unit||(m.fields.find(f=>f.key==='t').unit_si))}</option></select></div></div>
+        <div class="field"><label>${L('Pressure (abs)','绝对压力')}<small>${L('Gas density scales linearly as P/14.7 psia','气体密度按 P/14.7 psia 线性换算')}</small></label>
+          <div class="row"><input type="number" step="any" id="f_p" value="${esc(nice((S.form.p||{}).value))}">
+          <select id="u_p"><option value="${esc((S.form.p||{}).unit||(m.fields.find(f=>f.key==='p').unit_si))}" selected>${esc((S.form.p||{}).unit||(m.fields.find(f=>f.key==='p').unit_si))}</option></select></div></div>
+      </div>
+      <div id="mixPanel" style="${isMix?'':'display:none'}">
+        <h3 style="margin-top:16px">${L('Customized Gas Mixture','自定义混合气')} <span class="sub">· ${L('% by Volume','体积分数 %')}</span></h3>
+        <div class="fields" style="grid-template-columns:repeat(4,1fr);gap:8px">${mixGrid}</div>
+        <div class="comp-sum" style="margin-top:8px">Σ = <b id="prptsSum">0.00</b> %
+          <span class="sub" style="margin-left:10px">${L('Below 100% auto-filled with N₂ (same as source)','不足 100% 自动补 N₂（与源程序一致）')}</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>${L('Properties','计算结果')}</h3>
+      <p class="sub">${L('Values shown in the active unit system (US Imperial / SI Metric).','数值按当前单位制显示（右上角可切换 US 英制 / SI 公制）。')}</p>
+      <div id="results"></div>
+    </div>
+  </div>`;
+  $('#content').innerHTML=html;
+  const syncMix=()=>{
+    const mix=Number(document.getElementById('f_fluid').value)===names.length-1;
+    document.getElementById('mixPanel').style.display=mix?'':'none';
+    let s=0; PMIX.forEach(c=>{ s+=(parseFloat(document.getElementById('f_'+c.key).value)||0); });
+    const el=document.getElementById('prptsSum'); if(el) el.textContent=s.toFixed(2);
+  };
+  ['f_fluid','f_t','f_p'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',onFieldChange);
+    document.getElementById(id).addEventListener('change',onFieldChange);
+  });
+  PMIX.forEach(c=>{
+    const el=document.getElementById('f_'+c.key);
+    el.addEventListener('input',()=>{ S.prptsMix[c.key]=parseFloat(el.value)||0; syncMix(); });
+  });
+  document.getElementById('u_t').addEventListener('change',onFieldChange);
+  document.getElementById('u_p').addEventListener('change',onFieldChange);
+  syncMix();
+  $('#resetBtn').onclick=()=>openModule(m.id);
+  $('#verifyBtn').onclick=verifyUnits;
+  $('#runBtn').onclick=async()=>{
+    const btn=$('#runBtn'); btn.disabled=true; setStatus(L('Computing…','计算中…'));
+    try{
+      const res=await api('/api/compute',{id:'gas_liquid_props',inputs:prptsInputs()});
+      S.last=res; renderResults(res);
+      setStatus(L('✔ Calculated and saved to history','✔ 已计算并保存至 SQLite 计算历史'),'ok');
+    }catch(e){ setStatus('✕ '+e.message,'bad'); }
+    finally{ btn.disabled=false; }
+  };
+  $('#results').innerHTML='<div class="empty">'+L('Select a fluid, then click "Show Properties" · auto-saved to history','选择流体后点击「Show Properties」· 结果自动保存到 SQLite 计算历史')+'</div>';
+}
+
+function prptsInputs(){
+  const o={fluid:{value:Number((S.form.fluid||{value:0}).value),unit:'-'},
+           t:{value:Number((S.form.t||{}).value),unit:(S.form.t||{}).unit||'C'},
+           p:{value:Number((S.form.p||{}).value),unit:(S.form.p||{}).unit||'kPa'}};
+  PMIX.forEach(c=>{ o[c.key]={value:S.prptsMix[c.key]||0,unit:'%'}; });
+  return o;
+}
+
+// Fuel Combustion — source-like layout: Fuel Selection / Specify Combustion
+// Conditions / Options / CUSTOM grid / two-page result sections.
+// Every visible string is bilingual (EN · 中文); all physical units follow the
+// active display system (SI / US) and are converted exactly once at the edge.
+const FCOMP=[
+  {key:'y_ch4',  sym:'CH4',   name:'Methane',            zh:'甲烷'},
+  {key:'y_c2h2', sym:'C2H2',  name:'Acetylene',          zh:'乙炔'},
+  {key:'y_c2h4', sym:'C2H4',  name:'Ethylene',           zh:'乙烯'},
+  {key:'y_c2h6', sym:'C2H6',  name:'Ethane',             zh:'乙烷'},
+  {key:'y_c3h6', sym:'C3H6',  name:'Propylene',          zh:'丙烯'},
+  {key:'y_c3h8', sym:'C3H8',  name:'Propane',            zh:'丙烷'},
+  {key:'y_c4h10',sym:'C4H10', name:'Butane',             zh:'丁烷'},
+  {key:'y_c5h12',sym:'C5H12', name:'N-Pentane',          zh:'正戊烷'},
+  {key:'y_c6h14',sym:'C6H14', name:'N-Hexane',           zh:'正己烷'},
+  {key:'y_co',   sym:'CO',    name:'Carbon Monoxide',    zh:'一氧化碳'},
+  {key:'y_h2',   sym:'H2',    name:'Hydrogen',           zh:'氢气'},
+  {key:'y_h2s',  sym:'H2S',   name:'Hydrogen Sulfide',   zh:'硫化氢'},
+  {key:'y_co2',  sym:'CO2',   name:'Carbon Dioxide',     zh:'二氧化碳'},
+  {key:'y_o2',   sym:'O2',    name:'Oxygen',             zh:'氧气'},
+  {key:'y_h2o',  sym:'H2O',   name:'Water Vapor',        zh:'水蒸气'},
+  {key:'y_n2',   sym:'N2',    name:'Nitrogen',           zh:'氮气'},
+];
+const FTYPES=[
+  ['Standard Gas','标准燃气'],['Liquid Fuel','液体燃料'],['Customized Gas Fuel','自定义燃气'],
+  ['Customized Oil Mixture','自定义混合油'],['Custom Oil','自定义燃油']
+];
+// Source US units and their SI counterparts for the three Fuel Input modes.
+const FINPUT=[
+  {us:'scfh',       si:'Nm³/h', zhUs:'标准立方英尺/小时', zhSi:'标准立方米/小时', k:0.0283168*273.15/288.706},
+  {us:'Mill.Btu/h', si:'kW',    zhUs:'百万英热单位/小时', zhSi:'千瓦',           k:293.071},
+  {us:'lb/hr',      si:'kg/h',  zhUs:'磅/小时',           zhSi:'千克/小时',       k:0.45359237},
+];
+const FOPTIONS=[
+  {key:'ambient', en:'Set Ambient Conditions (Temperature and Humidity)', zh:'设置环境条件（温度与湿度）'},
+  {key:'fgr',     en:'Flue Gas Recirculation Option',                     zh:'烟气再循环选项'},
+  {key:'o2e',     en:'Oxygen Enrichment Option',                          zh:'富氧燃烧选项'},
+];
+// Bilingual labels for result rows / sections emitted by the Rust kernel.
+const FC_ZH={
+ 'C, Carbon (% by weight)':'碳（质量分数）','H, Hydrogen (% by weight)':'氢（质量分数）',
+ 'S, Sulfer (% by weight)':'硫（质量分数）','O, Oxygen (% by weight)':'氧（质量分数）',
+ 'N, Nitrogen (% by weight)':'氮（质量分数）','Ash / Moisture (% by weight)':'灰分 / 水分（质量分数）',
+ '  Component':'组分','  CO2 (Carbon Dioxide)':'二氧化碳 CO₂','  SO2 (Sulfur Dioxide)':'二氧化硫 SO₂',
+ '  O2 (Oxygen)':'氧气 O₂','  N2 (Nitrogen)':'氮气 N₂','  H2O (Water Vapor)':'水蒸气 H₂O',
+ 'Available Heat (Dry Air)':'可用热（干空气）','Heat Available (Dry Air)':'可用热量（干空气）',
+ 'Available Heat (Humid Air)':'可用热（湿空气）','Heat Available (Humid Air)':'可用热量（湿空气）',
+ 'Specified Fuel Flow Rate':'指定燃料流量','Air Flow Rate':'空气流量',
+ 'Required Oxygen Flow Rate':'所需氧气流量','Total Mixture Flow Rate':'氧化剂总流量',
+ '% Oxygen in Combustion Air/Oxygen Mixture':'助燃空气/氧气混合物含氧量',
+ 'Furnace Flue Gas Flow Rate':'炉膛烟气流量',
+ 'Flue Gas Recirculation Flow Rate':'烟气再循环流量',
+ '% Oxygen in Combustion Mixture':'燃烧混合物含氧量',
+ 'Furnace Actual Flue Gas Flow Rate':'炉膛实际烟气流量',
+ 'Total Air and Flue Gas Mixture Flow (Standard)':'空气与烟气混合物总流量（标况）',
+ 'Total Air and Flue Gas Mixture (acfh)':'空气与烟气混合物总流量（实际）',
+ 'Air and Flue Gas Mixture Temperature':'空气与烟气混合物温度',
+ 'Heat of Air Preheated':'空气预热热量','Heat of Recirculation Gas':'再循环烟气热量',
+ 'Heat of Exhaust Flue Gas':'排烟热损失',
+ 'Fuel Mass Flow Rate · 燃料':'燃料质量流量','Air Mass Flow Rate · 空气':'空气质量流量',
+ 'Combustion Product Content (Dry Air, 20.99% O2), % by volume':'燃烧产物成分（干空气，20.99% O₂）· 体积分数',
+ 'Combustion Product Content (Humid Air), % by volume':'燃烧产物成分（湿空气）· 体积分数',
+ 'Available Heat · 可用热':'可用热','Flow Rates · 流量':'流量',
+ 'Temperatures & Heat · 温度与热量':'温度与热量',
+ 'CH4 (Methane)':'甲烷','C2H2 (Acetylene)':'乙炔','C2H4 (Ethylene)':'乙烯','C2H6 (Ethane)':'乙烷',
+ 'C3H6 (Propylene)':'丙烯','C3H8 (Propane)':'丙烷','C4H10 (Butane)':'丁烷',
+ 'C5H12 (N-Pentane)':'正戊烷','C6H14 (N-Hexane)':'正己烷','CO (Carbon Monoxide)':'一氧化碳',
+ 'H2 (Hydrogen)':'氢气','H2S (Hydrogen Sulfide)':'硫化氢','CO2 (Carbon Dioxide)':'二氧化碳',
+ 'O2 (Oxygen)':'氧气','H2O (Water Vapor)':'水蒸气','N2 (Nitrogen)':'氮气',
+};
+const FC_NOTE={
+ 'Wet % / Dry %':'湿基 / 干基','Dry air basis':'干空气基准','Humid air basis':'湿空气基准',
+ 'Oxygen Enrichment = Off':'富氧选项 = 关','Flue Gas Recirculation = Off':'烟气再循环 = 关',
+ 'Oxygen Enrichment = On':'富氧选项 = 开','Percent of Recirculation Gases':'再循环烟气百分比',
+ 'Purity of Oxygen / % O2 in Combustion Air-Oxygen Mixture':'氧气纯度 / 助燃混合物含氧量',
+ 'Recirculation Flue Gas Temperature / Percent of Recirculation Gases':'再循环烟气温度 / 再循环百分比',
+ 'Source program Fuel Input':'源程序燃料输入','% Excess Air':'过量空气百分数',
+ 'Set Ambient Conditions':'设置环境条件','Flue Gas Recirculation Option':'烟气再循环选项',
+};
+// Single-language rendering of kernel labels / notes (was: bilingual gloss).
+function bi(s,dict){ return oneLang(s,dict); }
+function biNote(s){ return oneLang(s,FC_NOTE); }
+// The kernel prints source (US) values, often with an embedded SI counterpart.
+// Split into {us, si} so the table can show whichever system is active.
+const FC_SI_UNIT=/(?:kW|°C|MJ\/Nm³|MJ\/kg|kg\/h|Nm³\/h|Am³\/h)/;
+function fcNum(x){
+  if(!isFinite(x)) return '—';
+  return Number(x.toFixed(2)).toLocaleString('en-US',{maximumFractionDigits:2});
+}
+function fcUnits(t){
+  const s=String(t==null?'':t);
+  if(!s.trim()) return {us:s,si:s};
+  if(s.indexOf('│')>=0){
+    const p=s.split('│').map(x=>x.trim());
+    if(p.length>=2 && FC_SI_UNIT.test(p[1])) return {us:p[0],si:p[1]};
+    return {us:s,si:s};
+  }
+  const m=s.match(/^\s*(-?[\d.,]+)\s*(.*?)\s*$/);
+  if(!m) return {us:s,si:s};
+  const v=parseFloat(m[1].replace(/,/g,'')), u=m[2].trim();
+  const cv=(k,unit)=>({us:s,si:fcNum(v*k)+' '+unit});
+  if(/^BTU\/hr$/i.test(u))            return cv(0.000293071,'kW');
+  if(/^Mill\.Btu\/h$/i.test(u))       return cv(293.071,'kW');
+  if(/^scfh$/i.test(u))               return cv(0.0283168*273.15/288.706,'Nm³/h');
+  if(/^acfh$/i.test(u))               return cv(0.0283168,'Am³/h');
+  if(/^lb\/hr$/i.test(u))             return cv(0.45359237,'kg/h');
+  if(/^°F$/.test(u))                  return {us:s,si:fcNum((v-32)*5/9)+' °C'};
+  if(/^SCF air\/SCF gas$/i.test(u))   return {us:s,si:fcNum(v)+' Nm³ air/Nm³ gas'};
+  if(/^lb air\/lb fuel$/i.test(u))    return {us:s,si:fcNum(v)+' kg air/kg fuel'};
+  if(/^Btu\/scf$/i.test(u))           return cv(0.0372589,'MJ/m³');
+  if(/^Btu\/lb$/i.test(u))            return cv(0.002326,'MJ/kg');
+  return {us:s,si:s};
+}
+// S.form.fuel_input always holds the source US value; only the display is
+// converted, so the compute API keeps receiving the exact source basis.
+function fcMode(){ return Math.round(Number((S.form.input_unit||{}).value)||0); }
+function fcUnit(){ const o=FINPUT[fcMode()]||FINPUT[0]; return S.system==='SI'?o.si:o.us; }
+function fcFactor(){ return S.system==='SI'?(FINPUT[fcMode()]||FINPUT[0]).k:1; }
+function fcDisp(){ return Number((Number((S.form.fuel_input||{}).value||0)*fcFactor()).toPrecision(7)); }
+function fcToUS(x){ return Number(x)/fcFactor(); }
+function fcSyncInput(){
+  const el=document.getElementById('f_fuel_input'); if(!el) return;
+  el.value=nice(fcDisp());
+  const u=document.getElementById('u_fuel_input'); if(u){ u.options[0].textContent=fcUnit(); u.options[0].value='-'; u.value='-'; }
+  const lb=document.getElementById('fcInputUnitLabel'); if(lb) lb.textContent=fcUnit();
+}
+
+function renderCombustion(m){
+  S.current=m;
+  const F={}; m.fields.forEach(f=>F[f.key]=f);
+  const st=k=>S.form[k]||{value:F[k].default_display,unit:F[k].unit_si};
+  const idx=k=>Math.round(Number(st(k).value))||0;
+  const gasNames=(F.fuel.options||[]).slice(0,-1);
+  const oilNames=(F.oil.options||[]).slice(0,-1);
+  const numFld=(key,label,hint,fixedUnit,override)=>{
+    const f=F[key], s=st(key);
+    const u=fixedUnit||s.unit||f.unit_si||'-';
+    const val=(override===undefined)?s.value:override;
+    return '<div class="field"><label>'+esc(label)+(hint?'<small>'+esc(hint)+'</small>':'')+'</label>'+
+      '<div class="row"><input type="number" step="any" id="f_'+key+'" value="'+esc(nice(val))+'">'+
+      '<select id="u_'+key+'"'+(fixedUnit?' data-fixed="1"':'')+'>'+
+      '<option value="'+esc(fixedUnit?'-':u)+'" selected>'+esc(u)+'</option>'+
+      '</select></div></div>';
+  };
+  const selFld=(key,label,opts,hint)=>{
+    const v=idx(key);
+    return '<div class="field"><label>'+esc(label)+(hint?'<small>'+esc(hint)+'</small>':'')+'</label>'+
+      '<div class="row"><select class="wide" id="f_'+key+'">'+
+      opts.map((o,i)=>'<option value="'+i+'"'+(v===i?' selected':'')+'>'+esc(o)+'</option>').join('')+
+      '</select></div></div>';
+  };
+  const radios=(name,arr,cur)=>arr.map((o,i)=>{
+    const en=Array.isArray(o)?o[0]:o, zh=Array.isArray(o)?o[1]:o;
+    return '<label style="display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px;cursor:pointer">'+
+    '<input type="radio" name="'+name+'" data-i="'+i+'"'+(cur===i?' checked':'')+'>'+
+    esc(S.lang==='zh'?zh:en)+'</label>';
+  }).join('');
+  const chk=(key,en,zh)=>'<label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer">'+
+    '<input type="checkbox" id="chk_'+key+'"'+(idx(key)===1?' checked':'')+'>'+esc(S.lang==='zh'?zh:en)+'</label>';
+  const isSI=S.system==='SI';
+  const C=v=>String(Math.round((v-32)*5/9));
+  const tmpHint=(loF,hiF)=>isSI ? C(loF)+'–'+C(hiF)+' °C' : loF+'–'+hiF+' °F';
+  const compGrid=FCOMP.map(c=>
+    '<div class="field" style="margin:0"><label>'+esc(c.sym)+'<small>'+esc(S.lang==='zh'?c.zh:c.name)+'</small></label>'+
+    '<div class="row"><input type="number" step="any" id="f_'+c.key+'" value="'+esc(nice(st(c.key).value))+'">'+
+    '<select id="u_'+c.key+'" data-fixed="%"><option selected>%</option></select></div></div>').join('');
+
+  $('#content').innerHTML=`
+  <div class="wrap">
+    <div class="hero">
+      <span class="tag">${esc(m.group)}</span>
+      <h2>${esc(S.lang==='zh'?m.name:(m.en||m.name))}</h2>
+      <p>${esc(m.desc)}</p>
+      <div class="method"><b>${L('Method','方法')}</b><span>${esc(m.method)}</span></div>
+    </div>
+
+    <div class="card">
+      <h3>${L('Fuel Selection','燃料选择')}</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:14px 22px">${radios('ftype',FTYPES,idx('fuel_type'))}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px">
+        <div>
+          <div class="sub" style="margin-bottom:6px">${L('Select Gas (GasFuel table, 17 items)','标准燃气（源 GasFuel 表 17 项）')}</div>
+          <select id="f_fuel" size="5" class="wide" style="height:132px">
+            ${gasNames.map((o,i)=>'<option value="'+i+'"'+(idx('fuel')===i?' selected':'')+'>'+esc(o)+'</option>').join('')}
+          </select>
+          <button class="btn plain" id="selectGasBtn" style="margin-top:8px">${L('Select Gas','选择燃气')}</button>
+          <span class="sub" id="selGasLabel" style="margin-left:8px">${esc(gasNames[idx('fuel')]||'')}</span>
+        </div>
+        <div>
+          <div class="sub" style="margin-bottom:6px">${L('Select Oil (OilFuel table)','液体燃料（源 OilFuel 表）')}</div>
+          <select id="f_oil" size="5" class="wide" style="height:132px">
+            ${oilNames.map((o,i)=>'<option value="'+i+'"'+(idx('oil')===i?' selected':'')+'>'+esc(o)+'</option>').join('')}
+          </select>
+        </div>
+      </div>
+      <div id="customPanel" style="margin-top:14px">
+        <h3 style="margin:0 0 8px">${L('Customized Gas Fuel','自定义燃气组成')} <span class="sub">· ${L('% by Volume','体积分数 %')}</span></h3>
+        <div class="fields" style="grid-template-columns:repeat(4,1fr);gap:8px">${compGrid}</div>
+        <div class="comp-sum" style="margin-top:8px">Σ = <b id="combSum">0.00</b> %
+          <span class="sub" style="margin-left:10px">${L('Below 100% auto-filled with N₂ (same as source)','合计不足 100% 自动补 N₂（与源程序一致）')}</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>${L('Specify Combustion Conditions','指定燃烧条件')} <span class="sub">· ${L('Current Units: ','当前单位制：')}${sysName()}</span></h3>
+      <div class="fields" style="grid-template-columns:repeat(2,1fr)">
+        ${numFld('excess',L('% Excess Air','过量空气'),L('Excess air percentage','过量空气百分数'))}
+        ${numFld('t_air',L('Combustion Air Temp.','助燃空气温度'),tmpHint(60,2200))}
+        ${numFld('t_exh',L('Exhaust Temperature','排烟温度'),tmpHint(60,3600))}
+        ${numFld('t_fuel',L('Fuel Temperature','燃料温度'),tmpHint(60,700)+(S.lang==='zh'?'（油 '+tmpHint(60,260)+'）':' (oil '+tmpHint(60,260)+')'))}
+      </div>
+      <div style="margin-top:12px;padding:12px;border:1px solid var(--line,#dde5ec);border-radius:10px">
+        <div class="sub" style="margin-bottom:8px"><b>${L('Fuel Input','燃料输入')}</b>
+          <span>（${L('current unit: ','源程序 3 种输入单位 · 当前单位：')}<b id="fcInputUnitLabel">${esc(fcUnit())}</b>）</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+          <div style="display:flex;flex-direction:column;gap:8px">${radios('fiu',FINPUT.map(o=>[
+            (isSI?o.si:o.us),
+            (isSI?o.zhSi:o.zhUs)
+          ]),idx('input_unit'))}</div>
+          <div style="flex:1;min-width:180px">${numFld('fuel_input',L('Fuel Input Value','燃料输入数值'),'',fcUnit(),fcDisp())}</div>
+        </div>
+        <input type="hidden" id="f_input_unit" value="${idx('input_unit')}">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 26px;margin-top:14px">
+        ${FOPTIONS.map(o=>chk(o.key,o.en,o.zh)).join('')}
+      </div>
+      <input type="hidden" id="f_ambient" value="${idx('ambient')}">
+      <input type="hidden" id="f_fgr" value="${idx('fgr')}">
+      <input type="hidden" id="f_o2e" value="${idx('o2e')}">
+      <div id="ambientPanel" class="fields" style="grid-template-columns:repeat(2,1fr);margin-top:10px">
+        ${numFld('t_amb',L('Ambient Air Temperature','环境空气温度'),L('Set Ambient Conditions','设置环境条件'))}
+        ${numFld('rh',L('Relative Humidity','相对湿度'),'0–100 %')}
+      </div>
+      <div id="fgrPanel" class="fields" style="grid-template-columns:repeat(2,1fr);margin-top:10px">
+        ${numFld('t_fgr',L('Recirculation Flue Gas Temperature','再循环烟气温度'),tmpHint(60,2200))}
+        ${numFld('fgr_pct',L('Percent of Recirculation Gases','再循环烟气百分比'),L('Max. 72 %','最大 72%'))}
+      </div>
+      <div id="o2ePanel" class="fields" style="grid-template-columns:repeat(2,1fr);margin-top:10px">
+        ${numFld('o2_purity',L('Purity of Oxygen','氧气纯度'),L('Max. 99 %','最大 99%'))}
+        ${numFld('o2_mix',L('% O2 in Combustion Air/Oxygen Mixture','助燃混合物含氧量'),'20.9–99 %')}
+      </div>
+      <div class="toolbar" style="margin-top:16px">
+        <button class="btn primary" id="runBtn">${L('Calculate ▶','计算 ▶')}</button>
+        <button class="btn plain" id="resetBtn">${L('↺ Reset','↺ 恢复默认')}</button>
+        <button class="btn plain" id="verifyBtn">${L('⇄ Unit Check','⇄ 双单位一致性自检')}</button>
+        <span class="status" id="status">${L('Ready','等待计算')}</span>
+      </div>
+      <div class="verify" id="verify"></div>
+    </div>
+
+    <div class="card">
+      <h3>${L('Fuel Combustion Analysis','燃烧分析报表')} <span class="sub">· ${L('Two-page report (Page 1 / Page 2)','两页燃烧分析报表（Page 1 / Page 2）')}</span></h3>
+      <p class="sub">${L('Section and item names follow the source report; values are shown in the active unit system.',
+        '分区标题与输出项目名称对齐源程序报表；数值按当前单位制显示。')}</p>
+      <div id="results"></div>
+    </div>
+  </div>`;
+
+  const allIds=[];
+  m.fields.forEach(f=>{
+    if(['fuel_type','input_unit','ambient','fgr','o2e'].indexOf(f.key)>=0) return;
+    allIds.push('f_'+f.key);
+    if(!f.options||!f.options.length) allIds.push('u_'+f.key);
+  });
+  allIds.forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.addEventListener('input',onFieldChange);
+    el.addEventListener('change',onFieldChange);
+  });
+  const bindRadio=(name,key)=>{
+    document.querySelectorAll('input[name="'+name+'"]').forEach(r=>{
+      r.addEventListener('change',()=>{
+        S.form[key]={value:Number(r.dataset.i),unit:'-'};
+        const h=document.getElementById('f_'+key); if(h) h.value=r.dataset.i;
+        if(key==='input_unit') fcSyncInput();
+        syncPanels();
+      });
+    });
+  };
+  bindRadio('ftype','fuel_type'); bindRadio('fiu','input_unit');
+  ['ambient','fgr','o2e'].forEach(k=>{
+    const el=document.getElementById('chk_'+k); if(!el) return;
+    el.addEventListener('change',()=>{
+      S.form[k]={value:el.checked?1:0,unit:'-'};
+      const h=document.getElementById('f_'+k); if(h) h.value=el.checked?1:0;
+      syncPanels();
+    });
+  });
+  const syncPanels=()=>{
+    const ft=idx('fuel_type');
+    const custom=(ft===2||ft===3||ft===4||idx('fuel')>=(F.fuel.options||[]).length-1);
+    document.getElementById('customPanel').style.display=custom?'':'none';
+    document.getElementById('f_fuel').disabled=(ft===1||ft===3||ft===4);
+    document.getElementById('f_oil').disabled=!(ft===1||ft===3||ft===4);
+    document.getElementById('ambientPanel').style.display=idx('ambient')===1?'':'none';
+    document.getElementById('fgrPanel').style.display=idx('fgr')===1?'':'none';
+    document.getElementById('o2ePanel').style.display=idx('o2e')===1?'':'none';
+    let s=0; FCOMP.forEach(c=>{ s+=(parseFloat(document.getElementById('f_'+c.key).value)||0); });
+    const e=document.getElementById('combSum'); if(e) e.textContent=s.toFixed(2);
+  };
+  document.getElementById('selectGasBtn').onclick=()=>{
+    const sel=document.getElementById('f_fuel');
+    document.getElementById('selGasLabel').textContent=sel.options[sel.selectedIndex]?.text||'';
+    toast(L('Fuel selected: ','已选择燃料：')+(sel.options[sel.selectedIndex]?.text||''));
+  };
+  FCOMP.forEach(c=>document.getElementById('f_'+c.key).addEventListener('input',syncPanels));
+  syncPanels();
+  $('#resetBtn').onclick=()=>openModule(m.id);
+  $('#verifyBtn').onclick=verifyUnits;
+  $('#runBtn').onclick=async()=>{
+    const btn=$('#runBtn'); btn.disabled=true; setStatus(L('Computing…','计算中…'));
+    try{
+      const res=await api('/api/compute',{id:'fuel_combustion',inputs:collectInputs()});
+      S.last=res; renderCombustionResults(res);
+      setStatus(L('✔ Calculated and saved to history','✔ 已计算并保存至 SQLite 计算历史'),'ok');
+    }catch(e){ setStatus('✕ '+e.message,'bad'); }
+    finally{ btn.disabled=false; }
+  };
+  if(S.last) renderCombustionResults(S.last);
+  else $('#results').innerHTML='<div class="empty">'+L('Choose a fuel, set conditions, then click "Calculate" · auto-saved to history','选择燃料并设定燃烧条件后点击「Calculate」· 结果自动保存到 SQLite 计算历史')+'</div>';
+}
+
+function renderModule(m){
+  if(m.id==='fuel_data'){ renderFuelData(m); return; }
+  if(m.id==='gas_liquid_props'){ renderPrpts(m); return; }
+  if(m.id==='fuel_combustion'){ renderCombustion(m); return; }
+  const html = `
+  <div class="wrap">
+    <div class="hero">
+      <span class="tag">${esc(m.group)}</span>
+      <h2>${esc(S.lang==='zh'?m.name:(m.en||m.name))}</h2>
+      <p>${esc(m.desc)}</p>
+      <div class="method"><b>${L('Method','方法')}</b><span>${esc(m.method)}</span></div>
+    </div>
+    <div class="card">
+      <h3>${L('Inputs','输入参数')}</h3>
+      <p class="sub">${L('Every value carries an explicit unit; internally everything is converted to SI and computed once. Switch SI/US globally in the top-right corner.',
+        '每个数值都带显式单位；内部统一换算为 SI 后只计算一次。可在右上角整体切换 SI / US 单位制。')}</p>
+      <div class="fields" id="fields"></div>
+      <div class="toolbar">
+        <button class="btn primary" id="runBtn">${L('▶ Calculate','▶ 计算')}</button>
+        <button class="btn plain" id="resetBtn">${L('↺ Reset','↺ 恢复默认')}</button>
+        <button class="btn plain" id="verifyBtn">${L('⇄ Unit Check','⇄ 双单位一致性自检')}</button>
+        <span class="status" id="status">${L('Ready','等待计算')}</span>
+      </div>
+      <div class="verify" id="verify"></div>
+    </div>
+    <div class="card">
+      <h3>${L('Results','计算结果')}</h3>
+      <p class="sub">${L('Values shown in the active unit system (US Imperial / SI Metric).','数值按当前单位制显示（右上角可切换 US 英制 / SI 公制）。')}</p>
+      <div id="results"></div>
+    </div>
+  </div>`;
+  $('#content').innerHTML=html;
+  renderFields();
+  if(m.id==='wobbe_index') injectWobbePickers();
+  $('#results').innerHTML='<div class="empty">'+L('Click "Calculate" to see results · auto-saved to history','点击「计算」查看结果 · 结果会自动保存到 SQLite 计算历史')+'</div>';
+  $('#runBtn').onclick=runCompute;
+  $('#resetBtn').onclick=()=>openModule(m.id);
+  $('#verifyBtn').onclick=verifyUnits;
+  $('#fields').addEventListener('input', onFieldChange);
+  $('#fields').addEventListener('change', onFieldChange);
+}
+
+function injectWobbePickers(){
+  const gases=S.db.gas_fuels||[]; if(!gases.length) return;
+  const mk=(label,hvKey,sgKey)=>{
+    const opts=gases.map(g=>'<option value="'+esc(g.code)+'">'+esc(g.name)+'（sg '+(g.gravity!=null?g.gravity:'?')+'）</option>').join('');
+    return '<div class="field"><label>'+label+'<small>从燃料库一键填入 Hv 与 sg（Hv 取体积高位热值）</small></label>'+
+      '<div class="row"><select class="wide" data-hv="'+hvKey+'" data-sg="'+sgKey+'"><option value="">— '+L('Pick a fuel','选择燃料')+' —</option>'+opts+'</select></div></div>';
+  };
+  const gases2=(S.db.gas_fuels||[]);
+  $('#fields').insertAdjacentHTML('afterbegin',
+    mk(L('Original gas (fuel library)','原燃气（燃料库）'),'hv_o','sg_o')+mk(L('Replacement gas (fuel library)','替代气（燃料库）'),'hv_s','sg_s'));
+  $('#fields').addEventListener('change',function wobbeFill(e){
+    const sel=e.target; if(!sel||!sel.dataset||!sel.dataset.hv) return;
+    const g=gases2.find(x=>x.code===sel.value); if(!g) return;
+    const hv=(g.gross_heat_si!=null)?g.gross_heat_si:(g.net_heat_si||0);
+    S.form[sel.dataset.hv]={value:hv,unit:'-'};
+    S.form[sel.dataset.sg]={value:(g.gravity!=null?g.gravity:1.0),unit:'-'};
+    const a=document.getElementById('f_'+sel.dataset.hv), b=document.getElementById('f_'+sel.dataset.sg);
+    if(a) a.value=hv; if(b) b.value=g.gravity;
+  });
+}
+
+function renderFields(){
+  const m=S.current; if(!m) return;
+  $('#fields').innerHTML = m.fields.map(f=>{    const st=S.form[f.key]||{value:f.default_display,unit:f.unit_si};
+    let control;
+    if(f.options && f.options.length){
+      control='<div class="row"><select class="wide" id="f_'+f.key+'">'+f.options.map((o,i)=>'<option value="'+i+'"'+(Math.round(Number(st.value))===i?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select></div>';
+    }else{
+      // Only the active unit system's canonical unit is offered.
+      const u = st.unit || (S.system==='SI'?f.unit_si:f.unit_us) || f.unit_si || '-';
+      control='<div class="row"><input type="number" step="any" id="f_'+f.key+'" value="'+esc(nice(st.value))+'">'+
+        '<select id="u_'+f.key+'"><option value="'+esc(u)+'" selected>'+esc(u)+'</option></select></div>';
+    }
+    return '<div class="field"><label>'+esc(bi(f.label))+'<small>'+esc(biNote(f.hint||''))+'</small></label>'+control+'</div>';
+  }).join('');
+}
+
+function onFieldChange(e){
+  const id=e.target.id; if(!id) return;
+  if(id.startsWith('f_')){ const k=id.slice(2), f=S.current.fields.find(x=>x.key===k);
+    let v=Number(e.target.value);
+    // Fuel Combustion: the field shows SI units while the kernel expects the
+    // source US basis — convert back once so both systems give identical results.
+    if(S.current && S.current.id==='fuel_combustion' && k==='fuel_input' && isFinite(v)) v=fcToUS(v);
+    S.form[k]=S.form[k]||{}; S.form[k].value=(f&&f.options&&f.options.length)? Number(e.target.value): v; }
+  if(id.startsWith('u_')){ const k=id.slice(2); S.form[k]=S.form[k]||{}; S.form[k].unit=e.target.value; }
+}
+
+function collectInputs(){
+  const o={};
+  for(const f of S.current.fields){
+    const st=S.form[f.key]||{value:f.default_display,unit:f.unit_si};
+    o[f.key]={value:Number(st.value), unit:(f.options&&f.options.length)?'-':st.unit};
+  }
+  return o;
+}
+
+function fcValText(t){
+  const s=String(t==null?'':t);
+  if(s==='N/A') return L('N/A','不适用');
+  if(s==='Off') return L('Off','关');
+  if(/^On\b/.test(s)) return L(s,'开');
+  if(/Wet %/.test(s)&&/Dry %/.test(s)) return L(s, s.replace('Wet %','湿基 %').replace('Dry %','干基 %'));
+  return s;
+}
+function renderCombustionResults(res){
+  if(!res.rows || !res.rows.length){ $('#results').innerHTML='<div class="empty">'+L('No results','无结果')+'</div>'; return; }
+  let html='<div class="result-wrap"><table class="fctable"><thead><tr>'+
+    '<th style="width:34%">'+L('Item','项目')+'</th>'+
+    '<th style="width:26%">'+L('Value (','数值（')+sysName()+L(')','）')+'</th>'+
+    '<th>'+L('Note','说明')+'</th></tr></thead><tbody>';
+  res.rows.forEach((r,i)=>{
+    const isSec = !r.si && /Page [12]/.test(r.note||'');
+    const isSub = /Combustion Product Content|Available Heat ·|Flow Rates ·|Temperatures & Heat ·|Main Mass Flows ·|Fuel Composition|Fuel Data ·|Combustion Conditions ·/.test(r.label);
+    const label=bi(r.label);
+    if(isSec){ html+='<tr class="fcsec"><td colspan="3">'+esc(label)+'</td></tr>'; return; }
+    if(isSub){ html+='<tr class="fcsub"><td colspan="3">'+esc(label)+'</td></tr>'; return; }
+    const p=fcUnits(r.si);
+    const main=fcValText(S.system==='SI'?p.si:p.us);
+    html+='<tr style="animation:fadeRow .3s ease '+(Math.min(i,24)*14)+'ms both"><td class="lab">'+esc(label)+'</td>'+
+      '<td class="val main">'+esc(main)+'</td>'+
+      '<td class="note">'+esc(biNote(r.note||''))+'</td></tr>';
+  });
+  $('#results').innerHTML=html+'</tbody></table></div>';
+}
+
+function renderResults(res){
+  if(!res.rows || !res.rows.length){ $('#results').innerHTML='<div class="empty">'+L('No results','无结果')+'</div>'; return; }
+  const siFirst = S.system==='SI';
+  const rows=res.rows.map((r,i)=>{
+    const main=siFirst? r.si : (r.us||r.si);
+    return '<tr style="animation:fadeRow .3s ease '+(i*18)+'ms both"><td class="lab">'+esc(bi(r.label))+'</td>'+
+      '<td class="val main">'+esc(main)+'</td>'+
+      '<td class="note">'+esc(biNote(r.note||''))+'</td></tr>';
+  }).join('');
+  $('#results').innerHTML='<div class="result-wrap"><table><thead><tr><th style="width:30%">'+L('Item','项目')+'</th><th style="width:26%">'+L('Value (','数值（')+sysName()+L(')','）')+'</th><th>'+L('Note','说明')+'</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+async function runCompute(){
+  const btn=$('#runBtn'); btn.disabled=true; setStatus(L('Computing…','计算中…'));
+  try{
+    const res=await api('/api/compute',{id:S.current.id, inputs:collectInputs()});
+    S.last=res; renderResults(res);
+    setStatus(L('✔ Calculated and saved to history','✔ 已计算并保存至 SQLite 计算历史'),'ok');
+  }catch(e){ setStatus('✕ '+e.message,'bad'); }
+  finally{ btn.disabled=false; }
+}
+
+async function verifyUnits(){
+  const v=$('#verify'); v.className='verify show'; v.textContent=L('Computing with both unit systems…','正在用两套单位输入分别计算…');
+  try{
+    const inputs=collectInputs();
+    const a=await api('/api/compute',{id:S.current.id,inputs});
+    const other=S.system==='SI'?'US':'SI';
+    const req=S.current.fields.map(f=>({qty:f.qty,value:Number(S.form[f.key].value),unit:(f.options&&f.options.length)?'-':S.form[f.key].unit}));
+    const cv=await api('/api/convert-fields',{fields:req,to_system:other});
+    const inputs2={};
+    S.current.fields.forEach((f,i)=>{ inputs2[f.key]={value:(f.options&&f.options.length)?req[i].value:cv.values[i],unit:(f.options&&f.options.length)?'-':cv.units[i]}; });
+    const b=await api('/api/compute',{id:S.current.id,inputs:inputs2});
+    const n=Math.min(a.rows.length,b.rows.length);
+    let same=0; const diffs=[];
+    for(let i=0;i<n;i++){ if(a.rows[i].si===b.rows[i].si) same++; else diffs.push(a.rows[i].label+': '+a.rows[i].si+' vs '+b.rows[i].si); }
+    const pass=same===n;
+    v.className='verify show '+(pass?'pass':'fail');
+    v.innerHTML='<b>'+(pass?'✔ PASS':'⚠ '+(S.lang==='zh'?'存在差异':'diffs found'))+'</b> — '+same+'/'+n+
+      (S.lang==='zh'?(' 项在 '+S.system+' 与 '+other+' 两套输入下结果完全一致。'):(' items match between '+S.system+' and '+other+' inputs.'))+
+      (diffs.length?'<br><small>'+esc(diffs.slice(0,4).join(' ｜ '))+'</small>':'<br><small>'+(S.lang==='zh'?'单位只在输入边界换算一次，内部全程 SI，因此输出不随显示单位制改变。':'Units are converted once at the input boundary; internals stay SI, so output never changes with the display system.')+'</small>');
+  }catch(e){ v.className='verify show fail'; v.textContent=(S.lang==='zh'?'自检失败：':'Check failed: ')+e.message; }
+}
+
+$('#sysSeg').addEventListener('click', async e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const sys=b.dataset.sys; if(sys===S.system) return;
+  const old=S.system;
+  if(S.current && S.current.group_key!=='Tools' && Object.keys(S.form).length){
+    const req=S.current.fields.map(f=>({qty:f.qty,value:Number(S.form[f.key].value),unit:(f.options&&f.options.length)?'-':S.form[f.key].unit}));
+    try{
+      const r=await api('/api/convert-fields',{fields:req,to_system:sys});
+      S.current.fields.forEach((f,i)=>{ S.form[f.key].value=(f.options&&f.options.length)?req[i].value:r.values[i]; S.form[f.key].unit=(f.options&&f.options.length)?S.form[f.key].unit:r.units[i]; });
+    }catch(err){ toast(L('Unit conversion failed: ','单位换算失败：')+err.message); return; }
+  }
+  S.system=sys;
+  document.querySelectorAll('#sysSeg button').forEach(x=>x.classList.toggle('on',x.dataset.sys===sys));
+  if(S.current){ if(S.current.group_key==='Tools') renderTool(S.current); else if(S.current.id==='fuel_data') renderFuelData(S.current); else if(S.current.id==='gas_liquid_props') renderPrpts(S.current); else if(S.current.id==='fuel_combustion') renderCombustion(S.current); else { renderFields(); if(S.last) renderResults(S.last); } }
+  toast(L('Switched to ','已切换到 ')+sysName()+L(', physical values unchanged','，输入物理量保持不变'));
+});
+
+// Language toggle: re-render chrome + current module in the chosen language.
+$('#langSeg').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b || b.dataset.lang===S.lang) return;
+  S.lang=b.dataset.lang;
+  refreshChrome();
+  buildNav($('#navSearch').value);
+  if(S.current){
+    const m=S.current;
+    const nm = S.lang==='zh' ? m.name : (m.en||m.name);
+    $('#crumb').innerHTML='<span>'+esc(m.group)+'</span><span class="sep">/</span><b>'+esc(nm)+'</b>';
+    if(m.group_key==='Tools') renderTool(m);
+    else if(m.id==='fuel_data') renderFuelData(m);
+    else if(m.id==='gas_liquid_props') renderPrpts(m);
+    else if(m.id==='fuel_combustion') renderCombustion(m);
+    else { renderModule(m); if(S.last) renderResults(S.last); }
+  }
+});
+$('#exitBtn').onclick=async()=>{ try{ await api('/api/shutdown',{}); }catch(e){} document.body.innerHTML='<div style="display:grid;place-items:center;height:100vh;font:16px Segoe UI;color:#2e6b8a">'+L('Program exited. You can close this window.','程序已退出，可以关闭此窗口。')+'</div>'; };
+
+// ------------------------------------------------------------------ tools --
+const GLOSSARY=[
+ ['LHV / 低位热值','燃烧产物中水保持气态时的放热量；工程热平衡默认用 LHV，不能与 HHV 混用。'],
+ ['HHV / 高位热值','水冷凝为液态时多回收汽化潜热，数值高于 LHV。'],
+ ['过量空气系数 λ','实际空气量 / 理论空气量；λ=1+过量空气百分比。'],
+ ['理论空气量 A₀','完全燃烧单位燃料所需的最小空气量，通用烃类≈0.34·LHV[MJ/kg] kg/kg。'],
+ ['Wobbe 指数','Hv/√sg，燃气互换性核心指标，同压力下决定热负荷。'],
+ ['标况 Nm³ / SCFM','Nm³ 按 0°C、101.325 kPa；SCFM 按 60°F、14.696 psia —— 参考状态不同，不可直接等同。'],
+ ['表压 / 绝压','表压以大气压为零点；0 psig = 101.325 kPa(abs)，0 psia = 0 Pa(abs)。'],
+ ['Re 雷诺数','ρvD/μ，判别层流/湍流；单位为无量纲。'],
+ ['Pr 普朗特数','μ·cp/k，动量扩散与热扩散之比。'],
+ ['Nu 努塞尔数','hL/k，对流换热强度的无量纲数。'],
+ ['Ra 瑞利数','gβΔTL³/(να)，自然对流的驱动力。'],
+ ['LMTD','逆流/顺流换热器的对数平均温差。'],
+ ['Cv / Kv','阀门流量系数；1 Cv = 0.865 Kv，二者不是线性同名单位。'],
+ ['NPS','公称管径，是名义标号而非实测内径；Sch40 2" 内径约 52.5 mm。'],
+ ['β 直径比','孔板开孔直径 / 管内径，ISO 5167 常用 0.2~0.75。'],
+ ['抽力 / 烟囱效应','(ρ_air−ρ_flue)·g·H，由密度差产生。'],
+ ['基准含氧量折算','C_ref = C_meas·(20.9−O2_ref)/(20.9−O2_meas)，排放合规必做。'],
+ ['绝热火焰温度','假定无散热、完全燃烧时烟气达到的温度，为理论上限。']
+];
+
+function renderTool(m){
+  let body='';
+  if(m.id==='keyword_search'){
+    body='<div class="card"><h3>关键词检索</h3><p class="sub">按中英文名称、说明与公式实时检索全部模块。</p>'+
+      '<input class="bigsearch" id="kw" placeholder="例如：燃烧 / fan / 孔板 / radiation / 海拔…"><div class="tiles" id="kwResults"></div></div>';
+  }else if(m.id==='glossary'){
+    body='<div class="card"><h3>术语表</h3><p class="sub">公开工程定义，用于统一单位与公式口径。</p><dl class="glossary">'+
+      GLOSSARY.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('')+'</dl></div>';
+  }else if(m.id==='catalog'){
+    body='<div class="card"><h3>SQLite 设备目录</h3><p class="sub">已导入本机 E-Solutions 源程序的 MDB 目录数据；每行保留来源与原始值，派生 SI 值的单位假设写在 note 中。</p><div id="dbBody"></div></div>';
+  }else{
+    body='<div class="card"><h3>单位设置与审计</h3><p class="sub">所有输入在边界显式标注单位，内部统一 SI；切换显示单位制不改变物理量。</p>'+
+      '<div class="mini" style="margin-bottom:16px"><h4>当前设置</h4><div class="kv"><span>显示单位制</span><b>'+(S.system==='SI'?'SI 公制':'US 英制')+'</b></div>'+
+      '<div class="kv"><span>内部表示</span><b>唯一 SI 规范量</b></div><div class="kv"><span>换算位置</span><b>仅 I/O 边界，各一次</b></div>'+
+      '<div class="kv"><span>数据库版本</span><b>v'+esc(S.db.schema_version)+'</b></div></div>'+
+      '<div class="grid2"><div class="mini"><h4>单位约定表（unit_conventions）</h4><div style="max-height:310px;overflow:auto"><table><thead><tr><th>表.列</th><th>规范单位</th></tr></thead><tbody>'+
+      S.db.conventions.map(c=>'<tr><td class="lab">'+esc(c.table)+'.'+esc(c.column)+'</td><td>'+esc(c.unit)+'</td></tr>').join('')+'</tbody></table></div></div>'+
+      '<div class="mini"><h4>基准换算对照（17 条）</h4><div style="max-height:310px;overflow:auto"><table><thead><tr><th>项目</th><th>值</th></tr></thead><tbody>'+
+      S.audit.map(a=>'<tr><td class="lab">'+esc(a.item)+'</td><td class="val">'+esc(a.value)+'</td></tr>').join('')+'</tbody></table></div></div></div></div>';
+  }
+  $('#content').innerHTML='<div class="wrap"><div class="hero"><span class="tag">Tools 工具</span><h2>'+esc(m.name)+'</h2><div class="en">'+esc(m.en)+'</div><p>'+esc(m.desc)+'</p><div class="method"><b>实现</b><span>'+esc(m.method)+'</span></div></div>'+body+'</div>';
+  $('#crumb').innerHTML='<span>Tools 工具</span><span class="sep">/</span><b>'+esc(m.name)+'</b>';
+  if(m.id==='keyword_search'){
+    const draw=()=>{ const q=$('#kw').value.trim().toLowerCase();
+      const list=S.modules.filter(x=>(x.name+' '+x.en+' '+x.desc+' '+x.method).toLowerCase().includes(q));
+      $('#kwResults').innerHTML=list.map(x=>'<button class="tile" data-id="'+x.id+'"><b>'+esc(S.lang==='zh'?x.name:(x.en||x.name))+'</b><small>'+esc(x.group)+'</small><p>'+esc(x.desc)+'</p></button>').join('')||'<div class="empty">'+L('No match','无匹配')+'</div>';
+    };
+    $('#kw').addEventListener('input',draw); draw();
+    $('#kwResults').addEventListener('click',e=>{ const t=e.target.closest('.tile'); if(t) openModule(t.dataset.id); });
+  }
+  if(m.id==='catalog') renderDb();
+}
+
+async function renderDb(){
+  const box=$('#dbBody'); if(!box) return;
+  box.innerHTML='<div class="empty">读取数据库中…</div>';
+  try{
+    const d=await api('/api/db'); S.db=d;
+    box.innerHTML=
+      '<div class="grid2"><div class="mini"><h4>数据表 / 行数</h4><div style="max-height:260px;overflow:auto"><table><thead><tr><th>表</th><th>行数</th></tr></thead><tbody>'+
+      d.tables.map(t=>'<tr><td class="lab">'+esc(t.name)+'</td><td class="val">'+t.rows+'</td></tr>').join('')+'</tbody></table></div></div>'+
+      '<div class="mini"><h4>录入燃料（用户自有数据）</h4><div class="formline">'+
+      '<input class="w" id="fu_code" placeholder="编码 如 NG-1"><input class="w" id="fu_name" placeholder="名称"></div>'+
+      '<div class="formline"><input class="w" id="fu_lhv" type="number" step="any" placeholder="LHV MJ/kg"><input class="w" id="fu_hhv" type="number" step="any" placeholder="HHV MJ/kg"><input class="w" id="fu_rho" type="number" step="any" placeholder="密度 kg/Nm³"></div>'+
+      '<div class="formline"><button class="btn primary" id="fu_add">＋ 写入 SQLite</button></div>'+
+      '<div style="margin-top:12px;max-height:150px;overflow:auto"><table><thead><tr><th>编码</th><th>名称</th><th>LHV</th><th>来源</th></tr></thead><tbody>'+
+      (d.fuels.length?d.fuels.map(f=>'<tr><td class="lab">'+esc(f.code)+'</td><td>'+esc(f.name)+'</td><td class="val">'+esc(f.lhv==null?'—':Number(f.lhv).toFixed(3))+'</td><td class="note" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(f.source)+'">'+esc(String(f.source).replace('ESolutions600:','E600:'))+'</td></tr>').join(''):'<tr><td colspan="4" class="empty">暂无数据，请录入</td></tr>')+'</tbody></table></div></div></div>'+
+      '<div class="mini" style="margin-top:16px"><h4>源数据库导入（source_files / source_tables）</h4>'+
+      '<div class="kv"><span>来源文件</span><b>'+(d.source?d.source.files:0)+' 个 .mdb</b></div>'+
+      '<div class="kv"><span>原样保留</span><b>'+(d.source?d.source.tables:0)+' 张表 / '+(d.source?d.source.rows:0)+' 行</b></div>'+
+      '<p class="sub" style="margin-top:8px">源表以 src_ 前缀存放，列名与取值原样保留；业务表中的换算值在 note 里标注单位假设，用于正式设计前请核对样本。</p></div>'+
+      '<div class="mini" style="margin-top:16px"><h4>最近计算历史</h4><div style="max-height:190px;overflow:auto"><table><thead><tr><th>模块</th><th>时间</th><th>结果摘要</th></tr></thead><tbody>'+
+      (d.history.length?d.history.map(h=>'<tr><td class="lab">'+esc(h.module)+'</td><td>'+esc(h.at)+'</td><td class="note">'+esc(h.preview)+'</td></tr>').join(''):'<tr><td colspan="3" class="empty">还没有计算记录</td></tr>')+'</tbody></table></div></div>';
+    $('#fu_add').onclick=async()=>{
+      const val=id=>{const v=$('#'+id).value.trim(); return v===''?null:Number(v);};
+      try{
+        await api('/api/fuel',{code:$('#fu_code').value.trim(),name:$('#fu_name').value.trim(),lhv:val('fu_lhv'),hhv:val('fu_hhv'),density:val('fu_rho')});
+        toast('已写入 SQLite'); renderDb();
+      }catch(e){ toast('写入失败：'+e.message); }
+    };
+  }catch(e){ box.innerHTML='<div class="empty">'+esc(e.message)+'</div>'; }
+}
+
+init();
+</script>
+</body>
+</html>

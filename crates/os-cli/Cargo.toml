@@ -1,0 +1,13 @@
+[package]
+name = "open-solutions"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Open Solutions CLI - an independent combustion equipment selection toolkit"
+
+[[bin]]
+name = "open-solutions"
+path = "src/main.rs"
+
+[dependencies]
+os-core = { path = "../os-core" }

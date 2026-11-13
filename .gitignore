@@ -1,0 +1,12 @@
+# Rust build artifacts
+target/
+
+# Build output: exe + embedded browser profile + runtime databases
+dist/
+
+# Logs
+*.log
+
+# OS junk
+Thumbs.db
+desktop.ini

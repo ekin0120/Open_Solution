@@ -1,0 +1,9 @@
+[package]
+name = "os-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Domain models, engineering calculations and the SQLite data layer for Open Solutions"
+
+[dependencies]
+rusqlite.workspace = true

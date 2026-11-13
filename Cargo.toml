@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = ["crates/os-core", "crates/os-cli", "crates/os-modules", "crates/os-gui"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+# `bundled` compiles SQLite from source: no system sqlite3.dll is required,
+# but a C toolchain (MSVC Build Tools on Windows) is needed at build time.
+rusqlite = { version = "0.32", features = ["bundled"] }
