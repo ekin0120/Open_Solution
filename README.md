@@ -52,9 +52,32 @@ Rust 后端 (os-gui.exe) ── 本地回环 HTTP（127.0.0.1:随机端口，不
 
 ### 1. 安装与启动（推荐：Release 便携包）
 
-1. 从 [Releases](https://github.com/ekin0120/Open_Solution/releases) 下载 `Open_Solution-v0.1.0-win64.zip`；
+1. 从 [Releases](https://github.com/ekin0120/Open_Solution/releases) 下载 `Open_Solution-v0.1.1-win64.zip`；
 2. 解压到任意目录；
 3. 双击 **`open-solutions-gui.exe`** → 自动打开应用窗口，无需安装、无需 Python。
+
+### 首次运行被 Windows 11 / SmartScreen 拦截？
+
+本程序**未经代码签名**，首次下载运行时 Windows 会提示「Windows 已保护你的电脑」，属正常安全检查，两种方式任选其一：
+
+**方式 A（单次放行）**
+
+1. 在蓝色拦截弹窗上点击 **「更多信息」**；
+2. 点击 **「仍要运行」**。每个新版本首次运行点一次即可，之后 Windows 会记住。
+
+**方式 B（整目录解除标记，推荐）**
+
+浏览器下载的 zip 自带 Mark-of-the-Web 标记，解压出的文件会被一并拦截。解除一次即可永久放行：
+
+- 在解压目录的地址栏输入 `powershell` 回车，执行：
+
+```powershell
+Get-ChildItem -Recurse | Unblock-File
+```
+
+- 或右键 `open-solutions-gui.exe` → **属性** → 常规页底部勾选 **「解除锁定」** → 确定。
+
+> 说明：程序是单文件本地服务（仅监听 127.0.0.1），不联网、不写注册表；如仍不放心，可只对 `open-solutions-gui.exe` 与 `open-solutions.exe` 两个 exe 执行方式 B。
 
 > 需要系统自带 Microsoft Edge（缺失时回退默认浏览器）。关闭窗口或点「退出」即结束服务。
 
