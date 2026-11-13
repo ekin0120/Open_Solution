@@ -6,6 +6,9 @@
 //! All engineering math and unit conversion stay in Rust (`os-core`,
 //! `os-modules`); the browser is only a renderer.
 
+// GUI app: no console window on launch (all output goes to the UI/log file).
+#![windows_subsystem = "windows"]
+
 use os_core::model::Fuel;
 use os_core::storage::{Database, BUSINESS_TABLES};
 use os_core::units::UnitSystem;
